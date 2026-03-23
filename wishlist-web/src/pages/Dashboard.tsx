@@ -20,7 +20,10 @@ const Dashboard = () => {
       setWishlists(res.data);
     } catch (e) {
       // ТЕСТОВЫЕ ДАННЫЕ (если бэкенд недоступен)
-      setWishlists([]);
+      setWishlists([
+        { id: '1', title: 'День Рождения', description: 'Что я хочу на 20 лет', is_public: true, items_count: 2 },
+        { id: '2', title: 'Новый Год', description: 'Подарки семье', is_public: false, items_count: 0 }
+      ]);
     } finally {
       setLoading(false);
     }
