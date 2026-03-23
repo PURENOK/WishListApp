@@ -35,6 +35,24 @@ services:
       - "8000:8000"
     restart: always
 
+  frontend:
+    build:
+      context: ./wishlist-web
+      dockerfile: Dockerfile
+    container_name: wishlist-frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./wishlist-web:/app
+      - /app/node_modules
+    environment:
+      - VITE_API_URL=http://localhost:8000
+    depends_on:
+      db:
+        condition: service_healthy
+      app:
+        condition: service_started
+
 volumes:
   db_data:
 
