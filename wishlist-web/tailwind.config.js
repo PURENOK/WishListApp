@@ -7,12 +7,18 @@ export default {
   theme: {
     extend: {
       colors: {
-        brand: {
-          light: '#6366f1',
-          DEFAULT: '#4f46e5',
-          dark: '#4338ca',
-        }
-      }
+        'brand-primary': '#4f46e5',
+        'brand-secondary': '#6366f1',
+        'brand-error': '#ef4444',
+      },
+      fontFamily: {
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+      },
+      screens: {
+        'sm': '375px',
+        'md': '768px',
+        'lg': '1024px',
+      },
     },
   },
   plugins: [],
