@@ -48,14 +48,28 @@ const Register = () => {
 
             <div>
               <label className="block text-sm font-bold text-gray-700 mb-1">Пароль</label>
-              <input type="password" required value={password} onChange={e => setPassword(e.target.value)}
-                className="w-full border border-gray-200 rounded-2xl px-4 py-2.5 outline-none focus:ring-2 focus:ring-brand-primary" />
+              <input 
+                type="password" 
+                required 
+                minLength={8} 
+                maxLength={50} // Ограничение по спецификации
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full border border-gray-200 rounded-2xl px-4 py-2.5 outline-none focus:ring-2 focus:ring-brand-primary" 
+                placeholder="Минимум 8 символов"
+              />
             </div>
 
             <div>
               <label className="block text-sm font-bold text-gray-700 mb-1">Подтвердите пароль</label>
-              <input type="password" required value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)}
-                className="w-full border border-gray-200 rounded-2xl px-4 py-2.5 outline-none focus:ring-2 focus:ring-brand-primary" />
+              <input 
+                type="password" 
+                required 
+                maxLength={50} // Ограничение по спецификации
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="w-full border border-gray-200 rounded-2xl px-4 py-2.5 outline-none focus:ring-2 focus:ring-brand-primary" 
+              />
             </div>
 
             <Button type="submit" isLoading={isLoading} className="mt-4">Зарегистрироваться</Button>

@@ -15,11 +15,15 @@ export interface Wishlist {
 
 export interface WishlistItem {
   id: string;
-  title: string;
-  url?: string;
-  price: number;
-  currency: string;
-  is_purchased: boolean;
-  priority: number;
-  image_url?: string;
+  wishlist_id: string;
+  item_id: string;
+  title: string;      // Название (из таблицы Item)
+  url?: string;       // Ссылка (из таблицы Item)
+  price: number;      // Цена (из таблицы Item)
+  currency: string;   // Валюта (из таблицы Item)
+  image_url?: string; // Картинка (из таблицы Item)
+  priority: number;   // Приоритет 1-5 (из WishlistItem)
+  note?: string;      // Комментарий (из WishlistItem)
+  is_purchased: boolean; // Статус покупки
+  added_at: string;
 }

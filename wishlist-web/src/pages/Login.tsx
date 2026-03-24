@@ -67,8 +67,14 @@ const Login = () => {
 
             <div>
               <label className="block text-sm font-bold text-gray-700 mb-2">Пароль</label>
-              <input type="password" required value={password} onChange={e => setPassword(e.target.value)}
-                className="w-full border border-gray-200 rounded-2xl px-4 py-3 outline-none focus:ring-2 focus:ring-brand-primary transition-all" />
+              <input 
+                type="password" 
+                required 
+                maxLength={50} // Ограничение по спецификации
+                value={password} 
+                onChange={e => setPassword(e.target.value)}
+                className="w-full border border-gray-200 rounded-2xl px-4 py-3 outline-none focus:ring-2 focus:ring-brand-primary transition-all" 
+              />
             </div>
 
             <Button type="submit" isLoading={isLoading} className="h-14 text-lg">Войти</Button>
