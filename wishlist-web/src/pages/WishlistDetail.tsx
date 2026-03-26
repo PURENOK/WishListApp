@@ -22,6 +22,8 @@ const WishlistDetail = () => {
   const [isDelListOpen, setIsDelListOpen] = useState(false);
   const [isEditListOpen, setIsEditListOpen] = useState(false);
   const [isItemModalOpen, setIsItemModalOpen] = useState(false);
+  const [isDelItemOpen, setIsDelItemOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<WishlistItem | null>(null);
   
   const [listForm, setListForm] = useState({ title: '', description: '', is_public: false });
 
@@ -36,9 +38,9 @@ const WishlistDetail = () => {
     note: ''
   });
 
-  // Валидация URL (опционально, но если введено — проверяем формат)
+  // Валидация URL (обязательное поле)
   const isValidUrl = (url: string) => {
-    if (!url.trim()) return true; 
+    if (!url.trim()) return false;
     try {
       const parsed = new URL(url);
       return ['http:', 'https:'].includes(parsed.protocol);
@@ -47,12 +49,12 @@ const WishlistDetail = () => {
     }
   };
 
-  // Валидация всей формы (Название и Цена — обязательны, ссылки должны быть валидны если введены)
+  // Валидация всей формы (Название, Ссылка и Цена — обязательны)
   const isItemFormValid = useMemo(() => {
     const titleOk = itemForm.title.trim().length > 0;
     const priceOk = itemForm.price !== '' && !isNaN(Number(itemForm.price));
     const urlValid = isValidUrl(itemForm.url);
-    const imageValid = isValidUrl(itemForm.image_url);
+    const imageValid = !itemForm.image_url.trim() || isValidUrl(itemForm.image_url);
     
     return titleOk && priceOk && urlValid && imageValid;
   }, [itemForm]);
@@ -103,18 +105,27 @@ const WishlistDetail = () => {
 
   const handleSaveItem = async () => {
     if (!isItemFormValid) return;
-    const dataToSend = {
-      ...itemForm,
-      price: Number(itemForm.price),
-      url: itemForm.url.trim() || null,
-      image_url: itemForm.image_url.trim() || null,
-      note: itemForm.note.trim() || null,
-    };
     try {
       if (editingItem) {
-        await api.put(`/wishlists/${id}/items/${editingItem.id}`, dataToSend);
+        await api.put(`/wishlists/${id}/items/${editingItem.id}`, {
+          title: itemForm.title.trim(),
+          url: itemForm.url.trim(),
+          price: Number(itemForm.price),
+          currency: itemForm.currency,
+          image_url: itemForm.image_url.trim() || null,
+          note: itemForm.note.trim() || null,
+          priority: itemForm.priority,
+        });
       } else {
-        await api.post(`/wishlists/${id}/items`, dataToSend);
+        await api.post(`/wishlists/${id}/items`, {
+          title: itemForm.title.trim(),
+          url: itemForm.url.trim(),
+          price: Number(itemForm.price),
+          currency: itemForm.currency,
+          image_url: itemForm.image_url.trim() || null,
+          priority: itemForm.priority,
+          note: itemForm.note.trim() || null,
+        });
       }
       setIsItemModalOpen(false);
       fetchData();
@@ -134,7 +145,6 @@ const WishlistDetail = () => {
   };
 
   const handleDeleteItem = async (itemId: string) => {
-    if (!window.confirm("Удалить этот товар?")) return;
     try {
       await api.delete(`/wishlists/${id}/items/${itemId}`);
       fetchData();
@@ -241,7 +251,15 @@ const WishlistDetail = () => {
                    setItemForm({title: item.title, url: item.url || '', price: item.price.toString(), currency: item.currency, image_url: item.image_url || '', priority: item.priority, note: item.note || ''});
                    setIsItemModalOpen(true);
                 }} className="p-2.5 text-gray-400 hover:text-brand-primary hover:bg-indigo-50 rounded-xl transition-all"><Edit2 size={18} /></button>
-                <button onClick={() => handleDeleteItem(item.id)} className="p-2.5 text-gray-400 hover:text-brand-error hover:bg-red-50 rounded-xl transition-all"><Trash2 size={18} /></button>
+                <button
+                  onClick={() => {
+                    setItemToDelete(item);
+                    setIsDelItemOpen(true);
+                  }}
+                  className="p-2.5 text-gray-400 hover:text-brand-error hover:bg-red-50 rounded-xl transition-all"
+                >
+                  <Trash2 size={18} />
+                </button>
               </div>
             </div>
           ))
@@ -263,13 +281,19 @@ const WishlistDetail = () => {
 
       <Modal isOpen={isItemModalOpen} onClose={() => { setIsItemModalOpen(false); setEditingItem(null); }} title={editingItem ? "Изменить товар" : "Новый подарок"}>
         <div className="space-y-4">
-          <Input label="Название *" placeholder="Что подарить?" value={itemForm.title} onChange={e => setItemForm({...itemForm, title: e.target.value})} />
+          <Input
+            label="Название *"
+            placeholder="Что подарить?"
+            value={itemForm.title}
+            maxLength={255}
+            onChange={e => setItemForm({...itemForm, title: e.target.value})}
+          />
           
           <Input 
-            label="Ссылка на магазин (опционально)" 
+            label="Ссылка на магазин *" 
             placeholder="https://..." 
             value={itemForm.url} 
-            error={itemForm.url && !isValidUrl(itemForm.url) ? 'Неверный формат ссылки' : ''}
+            error={!itemForm.url.trim() ? 'Ссылка обязательна' : (!isValidUrl(itemForm.url) ? 'Неверный формат ссылки' : '')}
             onChange={e => setItemForm({...itemForm, url: e.target.value})} 
           />
           
@@ -282,7 +306,14 @@ const WishlistDetail = () => {
           />
           
           <div className="grid grid-cols-2 gap-4">
-            <Input label="Цена *" type="number" placeholder="0.00" value={itemForm.price} onKeyDown={handlePriceKeyDown} onChange={handlePriceChange} />
+            <Input
+              label="Цена *"
+              type="number"
+              placeholder="0.00"
+              value={itemForm.price}
+              onKeyDown={handlePriceKeyDown}
+              onChange={handlePriceChange}
+            />
             <div className="space-y-1.5">
               <label className="block text-sm font-bold text-gray-700 ml-1">Валюта</label>
               <select className="w-full px-4 py-3 rounded-2xl border border-gray-200 outline-none focus:ring-4 focus:ring-indigo-50 bg-white cursor-pointer" value={itemForm.currency} onChange={e => setItemForm({...itemForm, currency: e.target.value})}>
@@ -298,7 +329,7 @@ const WishlistDetail = () => {
             </select>
           </div>
           
-          <Textarea label="Комментарий (опционально)" placeholder="Цвет, размер и т.д." className="h-24" maxLength={1000} value={itemForm.note} onChange={e => setItemForm({...itemForm, note: e.target.value})} />
+          <Textarea label="Комментарий (опционально)" placeholder="Цвет, размер и т.д." className="h-24" maxLength={500} value={itemForm.note} onChange={e => setItemForm({...itemForm, note: e.target.value})} />
           
           <Button onClick={handleSaveItem} disabled={!isItemFormValid}>
             {editingItem ? "Сохранить" : "Добавить"}
@@ -312,6 +343,45 @@ const WishlistDetail = () => {
           <div className="flex gap-3">
             <Button variant="secondary" className="flex-1" onClick={() => setIsDelListOpen(false)}>Отмена</Button>
             <Button variant="danger" className="flex-1" onClick={handleDeleteList}>Да, удалить</Button>
+          </div>
+        </div>
+      </Modal>
+
+      <Modal
+        isOpen={isDelItemOpen}
+        onClose={() => {
+          setIsDelItemOpen(false);
+          setItemToDelete(null);
+        }}
+        title="Удалить подарок?"
+      >
+        <div className="text-center px-2">
+          <p className="text-gray-500 mb-8 text-sm">
+            Это действие нельзя отменить. Подарок будет удалён из списка навсегда.
+          </p>
+          <div className="flex gap-3">
+            <Button
+              variant="secondary"
+              className="flex-1"
+              onClick={() => {
+                setIsDelItemOpen(false);
+                setItemToDelete(null);
+              }}
+            >
+              Отмена
+            </Button>
+            <Button
+              variant="danger"
+              className="flex-1"
+              onClick={async () => {
+                if (!itemToDelete) return;
+                await handleDeleteItem(itemToDelete.id);
+                setIsDelItemOpen(false);
+                setItemToDelete(null);
+              }}
+            >
+              Да, удалить
+            </Button>
           </div>
         </div>
       </Modal>

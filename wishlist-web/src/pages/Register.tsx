@@ -101,7 +101,7 @@ const Register = () => {
               error={emailError}
               maxLength={255} // Ограничение по спецификации БД
               onChange={(e) => {
-                setEmail(e.target.value);
+                setEmail(e.target.value.replace(/\s+/g, ''));
                 if (emailError) setEmailError('');
               }}
               onBlur={() => {
@@ -120,7 +120,7 @@ const Register = () => {
               error={passwordError}
               maxLength={50} // Ограничение по спецификации (8-50)
               onChange={(e) => {
-                setPassword(e.target.value);
+                setPassword(e.target.value.replace(/\s+/g, ''));
                 if (passwordError) setPasswordError('');
               }}
               onBlur={() => {
@@ -139,7 +139,7 @@ const Register = () => {
               error={confirmError}
               maxLength={50} // Совпадает с ограничением пароля
               onChange={(e) => {
-                setConfirmPassword(e.target.value);
+                setConfirmPassword(e.target.value.replace(/\s+/g, ''));
                 if (confirmError) setConfirmError('');
               }}
               onBlur={() => touch('confirm')}

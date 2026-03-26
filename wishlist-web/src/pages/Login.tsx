@@ -125,7 +125,7 @@ const Login = () => {
               error={emailError}
               maxLength={255} // Ограничение согласно спецификации БД
               onChange={(e) => {
-                setEmail(e.target.value);
+                setEmail(e.target.value.replace(/\s+/g, ''));
                 if (emailError) setEmailError('');
               }}
               onBlur={() => setEmailError(validateEmailRequired(email) ?? '')}
@@ -142,7 +142,7 @@ const Login = () => {
                 value={password}
                 error={passwordError}
                 onChange={(e) => {
-                  setPassword(e.target.value);
+                  setPassword(e.target.value.replace(/\s+/g, ''));
                   if (passwordError) setPasswordError('');
                 }}
                 onBlur={() => setPasswordError(!password ? MSG.passwordRequired : '')}
@@ -198,7 +198,7 @@ const Login = () => {
             error={recoveryEmailError}
             maxLength={255} // Ограничение для email в модалке
             onChange={(e) => {
-              setRecoveryEmail(e.target.value);
+              setRecoveryEmail(e.target.value.replace(/\s+/g, ''));
               if (recoveryEmailError) setRecoveryEmailError('');
             }}
             onBlur={() => setRecoveryEmailError(validateForgotEmail(recoveryEmail) ?? '')}
