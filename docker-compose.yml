@@ -42,10 +42,6 @@ services:
     networks:
       - wishlist_network
 
-networks:
-  wishlist_network:
-    driver: bridge
-
   frontend:
     build:
       context: ./wishlist-web
@@ -57,12 +53,16 @@ networks:
       - ./wishlist-web:/app
       - /app/node_modules
     environment:
-      - VITE_API_URL=http://localhost:8000
+      - VITE_API_URL=http://localhost:8000/api/v1
     depends_on:
-      db:
-        condition: service_healthy
       app:
         condition: service_started
+    networks:
+      - wishlist_network
+
+networks:
+  wishlist_network:
+    driver: bridge
 
 volumes:
   postgres_data:
